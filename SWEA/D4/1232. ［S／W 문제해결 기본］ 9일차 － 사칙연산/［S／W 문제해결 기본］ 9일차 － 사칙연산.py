@@ -1,4 +1,4 @@
-# 1231 중위순회
+# 1232 사칙연산
 
 def post_order(node_info):
     """
