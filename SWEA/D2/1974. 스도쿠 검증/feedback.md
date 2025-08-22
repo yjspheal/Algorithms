@@ -79,3 +79,97 @@ for tc in range(1, T + 1):
 - 현재:
   ```python
   for i in range(row, row+3):
+      for j in range(row, row+3):  # ← BUG: j는 col부터 시작해야 함
+  ```
+- 올바른 범위:
+  ```python
+  for i in range(row, row+3):
+      for j in range(col, col+3):  # col 사용
+  ```
+
+## 2. `sudoku += zip(*sudoku)`로 원본을 변형하지 않기  [중요도: High] [효과: 안정성/가독]
+- 열 검증을 위해 원본 배열에 열을 **덧붙이면** 이후 인덱싱이 복잡해지고 박스 검사 범위와 **충돌**합니다.
+- 대신, **행은 그대로**, **열은 `zip(*sudoku)`로 별도 순회**, **박스는 좌표 기반으로 별도 검사**하세요.
+
+## 3. 중복 카운팅 로직 단순화(비트마스크/셋)  [중요도: Med] [효과: 성능/가독]
+- 리스트 카운팅 대신 비트마스크:
+  - 각 숫자 `x(1..9)`에 대해 `bit = 1 << (x-1)`를 OR 하며, 이미 켜진 비트가 나오면 중복.
+  - 분기/메모리 접근이 줄어들어 깔끔하고 빠릅니다.
+- 또는 `len(set(line)) == 9`를 쓰되 **모든 값이 1..9**인지도 확인하세요.
+
+## 4. 조기 종료(early return)와 함수 분리  [중요도: Med] [효과: 성능/유지보수]
+- `is_valid_row/col/box`를 함수로 쪼개고, 하나라도 실패 시 즉시 `0` 반환.
+- 테스트 케이스 루프는 결과만 출력.
+
+## 5. 타입힌트/PEP8/입출력 주석 정리  [중요도: Low] [효과: 가독/유지보수]
+- `List[List[int]]` 타입힌트, 의미 있는 함수명/변수명 사용.
+- 외부 파일 의존(`sys.stdin = open('input.txt')`)은 주석 처리하고, 주석으로 **샘플 입력**을 안내.
+
+# 최종 코드 예시
+~~~python
+from typing import List
+import sys
+
+input = sys.stdin.readline
+
+
+def valid_group_1to9(nums: List[int]) -> bool:
+    """
+    길이 9의 숫자 배열이 1..9를 중복 없이 정확히 1개씩 포함하는지 검사.
+    비트마스크로 중복을 탐지한다.
+    """
+    mask = 0
+    for x in nums:
+        if x < 1 or x > 9:
+            return False
+        bit = 1 << (x - 1)
+        if mask & bit:
+            return False
+        mask |= bit
+    # 1..9가 모두 한 번씩 등장했는지 (필요 시 아래 한 줄로도 검증 가능: mask == (1<<9)-1)
+    return True
+
+
+def is_valid_sudoku(board: List[List[int]]) -> bool:
+    # 행 검사
+    for r in range(9):
+        if not valid_group_1to9(board[r]):
+            return False
+
+    # 열 검사
+    for c in range(9):
+        col = [board[r][c] for r in range(9)]
+        if not valid_group_1to9(col):
+            return False
+
+    # 3x3 박스 검사
+    for sr in (0, 3, 6):        # start row
+        for sc in (0, 3, 6):    # start col
+            box = [board[r][c] for r in range(sr, sr + 3) for c in range(sc, sc + 3)]
+            if not valid_group_1to9(box):
+                return False
+
+    return True
+
+
+def main() -> None:
+    T = int(input())
+    for tc in range(1, T + 1):
+        board = [list(map(int, input().split())) for _ in range(9)]
+        print(f"#{tc} {1 if is_valid_sudoku(board) else 0}")
+
+
+if __name__ == "__main__":
+    # 표준 입력 예시
+    # 1
+    # 7 3 5 6 1 4 8 9 2
+    # 8 4 2 9 7 3 5 6 1
+    # 9 6 1 5 8 2 4 3 7
+    # 1 9 7 8 5 6 3 2 4
+    # 2 5 3 1 4 7 6 8 9
+    # 4 8 6 3 2 9 1 7 5
+    # 3 7 8 4 9 1 2 5 6
+    # 5 1 9 2 6 8 7 4 3
+    # 6 2 4 7 3 5 9 1 8
+    main()
+~~~
