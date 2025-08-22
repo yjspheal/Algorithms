@@ -10,7 +10,12 @@
 
 2025-08-22 15:19
 
-### feedback
+> 출처: SW Expert Academy, https://swexpertacademy.com/main/code/problem/problemList.do
+
+<br>
+<br>
+
+# 피드백
 # 기존 코드
 ~~~python
 # 1231 중위순회
@@ -224,4 +229,3 @@ if __name__ == "__main__":
 ~~~
 
 
-> 출처: SW Expert Academy, https://swexpertacademy.com/main/code/problem/problemList.do
