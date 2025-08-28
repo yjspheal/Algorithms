@@ -3,9 +3,6 @@
 ~~~python
 # 1860. 진기의 최고급 붕어빵
 
-# import sys
-# sys.stdin = open('input.txt')
-
 T = int(input())
 for tc in range(1, T + 1):
     N, M, K = map(int, input().split())     # N명의 손님, M초마다 K개의 붕어빵 생성
