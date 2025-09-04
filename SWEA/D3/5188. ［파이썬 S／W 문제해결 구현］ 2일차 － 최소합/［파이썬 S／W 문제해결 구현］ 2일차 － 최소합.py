@@ -1,7 +1,7 @@
 # 5188. [파이썬 S/W 문제해결 구현] 2일차 - 최소합
 
 # import sys
-# 
+#
 # sys.stdin = open('input.txt')
 
 def min_sum_dfs(r, c, arr, curr_sum, N):
@@ -18,7 +18,10 @@ def min_sum_dfs(r, c, arr, curr_sum, N):
 
     """
     global min_sum
-
+    
+    if curr_sum > min_sum:  # 이미 최소합을 넘어섰다면 끝
+        return
+    
     if r == N - 1 and c == N - 1:  # 마지막에 도달했다면
         min_sum = min(min_sum, curr_sum)  # 최소합 업데이트
         return  # 끝
